@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/potens-intern-frontend-aryan-nehe/sw.js', { scope: '/potens-intern-frontend-aryan-nehe/' })})}
