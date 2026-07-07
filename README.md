@@ -53,40 +53,28 @@ sequenceDiagram
 
 ---
 
-## 🎨 Design Philosophy & Tokens
+## 💡 Design Decisions Made
 
-Inspired by modern government digital portals and top-tier SaaS dashboards, CivicConnect aims to project **trust, simplicity, and speed**:
-- **Design Tokens**: Centralized colors, sizing, elevation, and typography are defined in `tailwind.config.js` to ensure visual cohesion.
-- **8-Point Spacing**: Everything (paddings, margins, grid gaps) aligns on an 8px grid (or 4px for micro-spacing) to create professional, predictable layouts.
-- **Calm Typography**: Restrained hierarchy standardizing on **Inter** and **Manrope**, restricted to no more than 5 distinct font sizes.
-- **Muted Colors**: Slate base, deep slate blue primary, emerald accent for positive completion states, amber warning alerts, and red restricted solely to destructive deletions.
-
----
-
-## 📱 Mobile-First & Progressive Enhancement
-
-CivicConnect is built mobile-first. In developing economies and municipal sectors, citizen reports are predominantly filed on mobile devices on-the-go.
-- **Viewport Layout**: Fixed margins, touch-friendly grid lists, and bottom bounds optimized for iOS Safari and Android Chrome.
-- **Touch Targets**: 44px minimum sizing for all clickables, inputs, and actions.
-- **Progressive Enhancement**: Core report filing is fully accessible even on legacy web platforms. If the **Web Speech API** is missing, the microphone interface falls back gracefully to standard keyboard text entry. If browser **Geolocation** permission is denied, manual location entry is offered instead.
+1. **State-Based Navigation Router**: Instead of integrating `react-router-dom`, we implemented a state-managed step routing coordinator. This allows us to orchestrate entry/exit transition physics with Framer Motion and preserve the offline submission state seamlessly.
+2. **Client-Side Image Canvas Compression**: Smartphone cameras capture multi-megabyte files that would quickly overflow the browser's 5MB local storage quota. Compressing down to ~40KB client-side preserves storage limits and allows files to upload quickly on restricted (Slow 3G) bandwidths.
+3. **8-Point Spacing & Layout Tokens**: Avoided random spacing margins. centralizing all paddings, margins, and elevations on a strict 8px/4px layout grid to convey trust and authority.
+4. **Muted Official Color Palettes**: Selected deep slate-900 blues and slate gray supporting colors. Gradients are omitted in favor of solid backgrounds to project the official aesthetic of a local municipal authority.
 
 ---
 
-## 🗣️ Marathi Localization Integration
+## ⚠️ What is Broken or Unfinished
 
-Marathi (मराठी) was selected as the secondary language to represent regional municipal localization requirements (supporting the state of Maharashtra, India).
-- **Static Translation Keys**: Managed in a single locale resource map (`translations.ts`).
-- **Context Swapping**: Handled via `LanguageContext` which updates the HTML `lang` element dynamically to support screen readers and SEO crawlers without triggering full page reloads.
+1. **Simulated Backend API Push**: Since this application operates without a live server, the synchronization service (`syncService.ts`) simulates database persistence using native `setTimeout` delays.
+2. **Browser-Dependent Speech Recognition**: The Web Speech API is not universally supported (e.g., standard Safari and Firefox browsers on older macOS/iOS setups block this API or require user config flags). On these browsers, it degrades to a static helper alert advising keyboard typing.
+3. **Reverse Geocoding Map Lookups**: The GPS Geolocation captures latitude, longitude, and accuracy values, but does not convert them to physical street addresses (e.g., "12 Main St") due to the lack of a paid Google Maps/OpenStreetMap API token.
 
 ---
 
-## ⚡ Performance Strategies
+## 🔮 What to Build Next
 
-To survive extreme low-bandwidth connections (Slow 3G) and provide near-instant Time-To-Interactive (TTI):
-1. **Client-Side Image Compression**: Utilizing HTML5 Canvas inside `UploadCard.tsx` to downscale captured camera files to a maximum dimension of 850px at 0.75 JPEG quality. This shrinks 5MB uploads to ~40KB base64 strings, preserving LocalStorage quotas and permitting swift uploads.
-2. **Bundle Code Splitting**: Non-essential features (like success animations and detail forms) are dynamically split and lazy-loaded.
-3. **SVG Icons**: Exclusively uses outline SVG vector icons from `react-icons` to minimize bundle bloat.
-4. **Service Worker Pre-caching**: Vite PWA caches all essential CSS, JS, and local fonts on installation, facilitating offline startup.
+1. **Integrate Real Backend (Node.js/Go/Python)**: Build JSON API endpoints to accept actual multi-part forms (storing photos in S3 and logs in PostgreSQL).
+2. **Reverse Geocoding & Map Previews**: Integrate a map viewport (Leaflet/Mapbox) letting citizens verify the pin placement visually and auto-populate addresses.
+3. **PWA Background Sync API**: Migrate the custom network listener to use the Service Worker's Background Sync API (`SyncManager`) so queues will automatically synchronize in the background even if the user closes the browser tab.
 
 ---
 
@@ -95,52 +83,6 @@ To survive extreme low-bandwidth connections (Slow 3G) and provide near-instant 
 - **Semantic Markup**: Standard elements (`header`, `main`, `footer`, `section`, `button`, `label`) are structured semantically.
 - **Focus Rings**: Standardized high-contrast, outline-ring overrides (`focus-visible:ring-2 focus-visible:ring-brand-blue-800`) are active globally.
 - **Aria Roles**: Live region announcements (`role="status"` or `role="alert"`) are configured on dynamic Toast messages. Categories support `role="radio"` with keyboard arrow/tab listeners.
-
----
-
-## 🏗️ Folder Structure
-
-```
-src/
-├── assets/             # SVG graphics (success illustration)
-├── components/         # Reusable presentation components
-│   ├── Button.tsx      # Multi-variant, loading-state button
-│   ├── Card.tsx        # Keyboard-navigable selection cards
-│   ├── Input.tsx       # Accessible text inputs with error bounds
-│   ├── Textarea.tsx    # Auto-counting textareas
-│   ├── VoiceButton.tsx # Dictation controls
-│   ├── UploadCard.tsx  # Photo drag-and-drop compressor
-│   ├── LanguageSwitch.tsx
-│   ├── ProgressIndicator.tsx
-│   ├── Toast.tsx       # Live status toaster
-│   ├── Modal.tsx       # Keyboard-trapped popup dialogs
-│   ├── SkeletonLoader.tsx
-│   ├── StatusBadge.tsx
-│   └── Header.tsx
-├── features/
-│   ├── issue/          # Issue reporting steps
-│   │   ├── CategorySelection.tsx
-│   │   ├── IssueDetailsForm.tsx
-│   │   ├── ConfirmationScreen.tsx
-│   │   └── SubmissionTimeline.tsx
-│   └── language/       # Localization resources
-│       ├── LanguageContext.tsx
-│       └── translations.ts
-├── hooks/              # Custom hooks (Offline, Speech, Caching)
-│   ├── useOffline.ts
-│   ├── useSpeechRecognition.ts
-│   └── useLocalStorage.ts
-├── layout/
-│   └── MainLayout.tsx  # Shell layout + offline alerts
-├── pages/
-│   └── CivicConnectApp.tsx # Wizards state coordinator
-├── types/
-│   └── index.ts        # TypeScript schemas
-├── utils/
-│   └── helpers.ts      # UUID and Canvas compression helpers
-└── constants/
-    └── index.ts        # Data dictionaries
-```
 
 ---
 
@@ -163,3 +105,21 @@ npm run build
 # Preview production build locally
 npm run preview
 ```
+
+---
+
+## 🤖 AI Use Log
+
+In compliance with engineering guidelines, below is the honest log of AI assistants leveraged to assist with the architecture, layout design, and compilation optimizations of CivicConnect:
+
+### **Antigravity**
+- **Approx. Message Count**: ~14 messages
+- **Usage**: Project bootstrapping, canvas-based client-side image compression math, Zod form schemas, Framer Motion wizard transition variants, and PostCSS configuration troubleshooting.
+
+### **ChatGPT**
+- **Approx. Message Count**: ~5 messages
+- **Usage**: Color palette refinement, CSS shimmer keyframe configurations, and Marathi localization translation verifications.
+
+### **OpenCode**
+- **Approx. Message Count**: ~3 messages
+- **Usage**: Git Bash repository initialization setup and TS compilation guidelines.
