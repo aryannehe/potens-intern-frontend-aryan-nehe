@@ -123,3 +123,7 @@ In compliance with engineering guidelines, below is the honest log of AI assista
 ### **OpenCode**
 - **Approx. Message Count**: ~3 messages
 - **Usage**: Git Bash repository initialization setup and TS compilation guidelines.
+
+---
+
+🌐 **Live Demo:** https://aryannehe.github.io/potens-intern-frontend-aryan-nehe/
